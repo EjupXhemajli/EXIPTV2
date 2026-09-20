@@ -1,0 +1,120 @@
+name: APK bauen
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Auch ein signiertes Release-APK bauen"
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  debug:
+    name: Debug-APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Code holen
+        uses: actions/checkout@v4
+
+      - name: Java 17 einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK einrichten
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle einrichten
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Kompilieren und bauen
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Unit-Tests
+        run: gradle :app:testDebugUnitTest --no-daemon
+        continue-on-error: true
+
+      - name: APK hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: EXIPTV-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Testbericht hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EXIPTV-testreport
+          path: app/build/reports/tests/
+          if-no-files-found: ignore
+
+  release:
+    name: Release-APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: debug
+    if: github.event_name == 'workflow_dispatch' && inputs.release || startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Code holen
+        uses: actions/checkout@v4
+
+      - name: Java 17 einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK einrichten
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle einrichten
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      # Keystore als Base64 im Repository-Secret KEYSTORE_BASE64 hinterlegen:
+      #   Windows: certutil -encode exiptv.jks exiptv.b64
+      #   Linux/macOS: base64 -w0 exiptv.jks
+      - name: Keystore herstellen
+        if: env.KEYSTORE_BASE64 != ''
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_BASE64" | base64 -d > exiptv.jks
+
+      - name: Release bauen
+        env:
+          KEYSTORE_FILE: exiptv.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: gradle :app:assembleRelease --no-daemon --stacktrace
+
+      - name: APK hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: EXIPTV-release
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: R8-Mapping sichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: EXIPTV-mapping
+          path: app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: ignore
+          retention-days: 90
