@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF0B0714"
+                android:centerColor="#FF07070C"
+                android:endColor="#FF0A0A16"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item
+        android:width="240dp"
+        android:height="77dp"
+        android:gravity="center">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/exiptv_logo" />
+    </item>
+</layer-list>

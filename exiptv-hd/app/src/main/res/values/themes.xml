@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Bewusst ohne AppCompat: die App nutzt ausschließlich ComponentActivity und
+      Compose. Das spart eine komplette Bibliothek samt Ressourcen-Overhead.
+      Das Theme setzt nur, was vor dem ersten Compose-Frame sichtbar ist.
+    -->
+    <style name="Theme.ExIptv" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:colorBackground">@color/brand_background</item>
+    </style>
+</resources>

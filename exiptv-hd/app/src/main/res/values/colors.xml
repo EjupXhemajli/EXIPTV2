@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Die Markenfarben stammen aus dem Logo: der Bogen läuft von Violett über
+  Magenta nach Blau. Diese drei Werte sind die einzige Farbquelle der App;
+  alles andere in der Oberfläche leitet sich in Theme.kt daraus ab.
+-->
+<resources>
+    <color name="brand_violet">#FF8A2BF0</color>
+    <color name="brand_magenta">#FFD64BF0</color>
+    <color name="brand_blue">#FF1E7BF5</color>
+
+    <color name="brand_background">#FF07070C</color>
+    <color name="brand_surface">#FF12121C</color>
+</resources>

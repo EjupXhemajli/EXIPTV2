@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  IPTV-Panels laufen in der Praxis überwiegend über http auf beliebigen Hosts und
+  Ports. Deshalb bleibt unverschlüsselter Verkehr erlaubt — aber als bewusste,
+  dokumentierte Ausnahme an genau einer Stelle statt als globales Manifest-Flag.
+  Die App warnt in den Anbieter-Einstellungen, wenn eine http-Adresse eingetragen
+  wird, und bevorzugt https, wenn der Host es anbietet.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
